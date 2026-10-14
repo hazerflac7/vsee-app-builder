@@ -1,0 +1,15 @@
+version: 3.0.3
+apkFileName: v6-root-check-0.4.apk
+usesFramework:
+  ids:
+  - 1
+sdkInfo:
+  minSdkVersion: 28
+  targetSdkVersion: 34
+versionInfo:
+  versionCode: 5
+  versionName: 0.5-pc-only-preview
+resourcesInfo:
+  packageId: 127
+doNotCompress:
+- arsc

@@ -1,0 +1,39 @@
+{
+  "format_version": 1,
+  "template_apk_sha256": "95ac2a2a54bdda1cdbb831b3952b3276531f2d1078fa99cce6a018fea3041b64",
+  "template_unsigned": true,
+  "profile_asset_path": "assets/v6-owner-profile.json",
+  "profile_schema_keys": [
+    "androidId",
+    "brand",
+    "clapVersion",
+    "cpuId",
+    "ethernetMac",
+    "firmwareVersion",
+    "manufacturer",
+    "model",
+    "randomSn",
+    "release",
+    "serial"
+  ],
+  "profile_placeholder_sha256": "a10a25533957d04d21db6c5aae100b047350908bbe890f0ed4d30b937195f345",
+  "native_pin_placeholder": "00000000000000000000000000000000",
+  "pin_offset_kind": "uncompressed ELF file offset",
+  "libjson": [
+    {
+      "abi": "armeabi-v7a",
+      "path": "lib/armeabi-v7a/libjson.so",
+      "sha256": "103d3ed4b0a219520c3911c4c46f2ff2fce23200067b15687678e42c2b5c46d5",
+      "pin_offset": 731414,
+      "pin_length": 32
+    },
+    {
+      "abi": "arm64-v8a",
+      "path": "lib/arm64-v8a/libjson.so",
+      "sha256": "003e750fd452c52b1ee524a98b794637f9cc7f481a2da6c527e0324bc3415ad6",
+      "pin_offset": 1006780,
+      "pin_length": 32
+    }
+  ],
+  "payload_entry_count": 1797
+}

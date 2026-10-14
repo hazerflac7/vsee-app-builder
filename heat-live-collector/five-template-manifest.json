@@ -1,0 +1,67 @@
+{
+  "heatvod": {
+    "asset": "heatvod-template.apk",
+    "sha256": "cb2227d45a432dc01baf575126e2b40150dda5849917ac85ec1beb2fc066a0a0",
+    "entryCount": 1529,
+    "pinOffsets": {
+      "lib/arm64-v8a/libjson.so": 1006780,
+      "lib/armeabi-v7a/libjson.so": 731414
+    },
+    "libHashes": {
+      "lib/arm64-v8a/libjson.so": "003e750fd452c52b1ee524a98b794637f9cc7f481a2da6c527e0324bc3415ad6",
+      "lib/armeabi-v7a/libjson.so": "103d3ed4b0a219520c3911c4c46f2ff2fce23200067b15687678e42c2b5c46d5"
+    }
+  },
+  "heatvodultra": {
+    "asset": "heatvodultra-template.apk",
+    "sha256": "b183edd10fc72f0d314c7e69875409c9f60219bc0e97db62047862851317c6dd",
+    "entryCount": 1580,
+    "pinOffsets": {
+      "lib/arm64-v8a/libjson.so": 1006780,
+      "lib/armeabi-v7a/libjson.so": 731414
+    },
+    "libHashes": {
+      "lib/arm64-v8a/libjson.so": "003e750fd452c52b1ee524a98b794637f9cc7f481a2da6c527e0324bc3415ad6",
+      "lib/armeabi-v7a/libjson.so": "103d3ed4b0a219520c3911c4c46f2ff2fce23200067b15687678e42c2b5c46d5"
+    }
+  },
+  "heatlivebackup": {
+    "asset": "heatlivebackup-template.apk",
+    "sha256": "e09cd5c92a00bc8b1fe4a9c52a5d4022bc799be3a79b1b51ffe8b10f586c0138",
+    "entryCount": 1712,
+    "pinOffsets": {
+      "lib/arm64-v8a/libjson.so": 1006827,
+      "lib/armeabi-v7a/libjson.so": 731461
+    },
+    "libHashes": {
+      "lib/arm64-v8a/libjson.so": "e65dbd9d99ce561df0adf2066b351db88f06e4dab2ae3e0d293eecda6031fdda",
+      "lib/armeabi-v7a/libjson.so": "eb277eeb1ffdaf382c13c8706b32dad07d56eace709a71eb0106f95357dded24"
+    }
+  },
+  "liveultra": {
+    "asset": "liveultra-template.apk",
+    "sha256": "5f979ed296451d4f3cbfd45d83b95b7dc49a8fa84abd126aa4111d95abe5a7d9",
+    "entryCount": 1835,
+    "pinOffsets": {
+      "lib/arm64-v8a/libjson.so": 1006780,
+      "lib/armeabi-v7a/libjson.so": 731414
+    },
+    "libHashes": {
+      "lib/arm64-v8a/libjson.so": "003e750fd452c52b1ee524a98b794637f9cc7f481a2da6c527e0324bc3415ad6",
+      "lib/armeabi-v7a/libjson.so": "103d3ed4b0a219520c3911c4c46f2ff2fce23200067b15687678e42c2b5c46d5"
+    }
+  },
+  "liveultraplus": {
+    "asset": "liveultraplus-template.apk",
+    "sha256": "746fed1a057ca76228ebc249162a633ba4455d278325874af72fc22feed61820",
+    "entryCount": 1840,
+    "pinOffsets": {
+      "lib/arm64-v8a/libjson.so": 1006780,
+      "lib/armeabi-v7a/libjson.so": 731414
+    },
+    "libHashes": {
+      "lib/arm64-v8a/libjson.so": "003e750fd452c52b1ee524a98b794637f9cc7f481a2da6c527e0324bc3415ad6",
+      "lib/armeabi-v7a/libjson.so": "103d3ed4b0a219520c3911c4c46f2ff2fce23200067b15687678e42c2b5c46d5"
+    }
+  }
+}

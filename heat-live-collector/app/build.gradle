@@ -1,0 +1,39 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.vseeheat.collector'
+    compileSdk 34
+
+    androidResources {
+        noCompress 'apk'
+    }
+
+    defaultConfig {
+        applicationId 'com.vseeheat.collector'
+        minSdk 28
+        targetSdk 34
+        versionCode 19
+        versionName '0.7.12-design-preview'
+    }
+
+    buildTypes {
+        debug {
+            // This prototype can hold a partial private profile during device tests.
+            debuggable false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'com.android.tools.build:apksig:8.9.2'
+}
+
+// Use tools/build-integrated-builder.py to package the tested relay code and
+// put the final signed installer in live/Vsee-App-Builder.apk.
