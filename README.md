@@ -1,6 +1,6 @@
 # Vsee App Builder
 
-**Vsee App Builder** is a preview Android TV app by TORR3NT's Tech. On a compatible V6 box, it checks six installed original apps and makes six APKs in a dated folder in Downloads. The owner can copy those files to another Android TV device and install them there.
+**Vsee App Builder** is an Android TV app by TORR3NT's Tech. On a compatible V6 box, it checks six installed original apps and makes six APKs in a dated folder in Downloads. The owner can copy those files to another Android TV device and install them there.
 
 The screen has two actions: **Check compatibility** and **Make APKs**. The builder starts the temporary access it needs during the build. It does not install the generated APKs on the other device.
 
@@ -8,7 +8,7 @@ The screen has two actions: **Check compatibility** and **Make APKs**. The build
 
 Version **0.7.12-design-preview** (`versionCode` 19) was tested by the owner on one factory-reset V6 and a 2017 Shield. The owner reported that all six APKs were exported and worked on the Shield. This is one reported device pair, not a guarantee for other boxes, firmware, app versions, or future service changes.
 
-Download the tested installer from the [0.7.12 preview release](https://github.com/torrent329/vsee-app-builder/releases/tag/v0.7.12-preview). Its SHA-256 is `11a2063ebc2ae0cd0f3b64aa09ece3d532e24123cdd2e2f600761a0e71ae8eba`. The 158 MB APK is a release asset rather than a Git file. Verify its hash before installing it.
+Download the tested installer from the [0.7.12 release](https://github.com/torrent329/vsee-app-builder/releases/tag/v0.7.12). Its SHA-256 is `11a2063ebc2ae0cd0f3b64aa09ece3d532e24123cdd2e2f600761a0e71ae8eba`. The 158 MB APK is a release asset rather than a Git file. Verify its hash before installing it.
 
 ## Use on your own box
 
