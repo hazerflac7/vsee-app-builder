@@ -6,7 +6,7 @@ The screen has two actions: **Check compatibility** and **Make APKs**. The build
 
 ## Current status
 
-Version **0.7.13** (`versionCode` 20) adds selectable app builds and a small TORR3NT marker on generated launcher icons and TV banners. Local build and package checks passed. **This version has not yet been tested on the V6 or Shield.** See [what changed in 0.7.13](docs/RELEASE-0.7.13.md).
+Version **0.7.13** (`versionCode` 20) adds selectable app builds. Local build and package checks passed. **This version has not yet been tested on the V6 or Shield.** See [what changed in 0.7.13](docs/RELEASE-0.7.13.md).
 
 The last owner-tested version is **0.7.12-design-preview** (`versionCode` 19). On one factory-reset V6 and a 2017 Shield, the owner reported that all six APKs were exported and worked. Its SHA-256 is `11a2063ebc2ae0cd0f3b64aa09ece3d532e24123cdd2e2f600761a0e71ae8eba`.
 

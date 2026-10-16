@@ -4,7 +4,6 @@
 
 - After **Check compatibility**, each matching app appears as a selected tile. Press OK on a tile to include or skip that app.
 - **Make APKs** exports only the selected compatible apps. Missing or changed apps that are not selected do not block a build.
-- Generated app launcher icons and Android TV banners carry a small **TORR3NT** marker. App names are unchanged.
 - The button stays disabled when no compatible apps are selected.
 
 ## Status
