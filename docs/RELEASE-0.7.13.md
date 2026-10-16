@@ -8,6 +8,6 @@
 
 ## Status
 
-The Android build, integrated package, signature, embedded template hashes, and APK resource compilation passed local checks. The V6 export, selected-app flow, launcher appearance, and target-device playback have not yet been tested for 0.7.13. The previous 0.7.12 release was owner-tested on a factory-reset V6 and 2017 Shield.
+The Android build, integrated package, signature, embedded template hashes, and APK resource compilation passed local checks. On 2026-10-16, the installer was installed on a V6 Plus and **Check compatibility** reported all six original apps as matching. The owner accepted the first-run notice. The V6 export, selected-app flow, and target-device playback have not yet been retested for 0.7.13. The previous 0.7.12 release was owner-tested on a factory-reset V6 and 2017 Shield.
 
 Heat Live must still be installed on the V6 to read the owner setup even if it is not selected for export. Keep generated APKs private because they contain information tied to the owner's box.
