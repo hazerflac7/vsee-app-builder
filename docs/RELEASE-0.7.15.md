@@ -12,6 +12,6 @@ This does not rewrite arbitrary future app updates on the box. A maintainer must
 
 ## Verification
 
-The integrated Android build, package signature, and embedded template checks passed. On a V6 Plus with original Heat Live 5.9.5, **Check compatibility** matched all six original apps. Selecting Heat Live alone saved one 5.9.5 APK to Downloads. That APK passed signature and package checks, installed, and opened on the source Plus. At the owner's request, a separate-device playback test was skipped. A 5.9.4 regression build and a future-version catalog download have not yet been tested on a box.
+The integrated Android build, package signature, and embedded template checks passed. On a V6 Plus with original Heat Live 5.9.5, **Check compatibility** matched all six original apps. Selecting Heat Live alone saved one 5.9.5 APK to Downloads. That APK passed signature and package checks, installed, and launched to the standard Android media permission screen on the source Plus. The temporary generated app was removed afterward. At the owner's request, a separate-device playback test was skipped. A 5.9.4 regression build and a future-version catalog download have not yet been tested on a box.
 
 Generated owner APKs contain information tied to the owner's box and must stay private.
