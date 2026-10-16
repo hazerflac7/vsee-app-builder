@@ -1,6 +1,6 @@
-# Vsee App Builder 0.7.14 candidate
+# Vsee App Builder 0.7.14 local build
 
-This local candidate adds exact-match support for original Heat Live 5.9.5
+This local build adds exact-match support for original Heat Live 5.9.5
 while retaining 5.9.4 support. It selects the matching Heat Live template and
 recollects the sealed owner profile when the installed original version
 changes. The other five supported app versions are unchanged.
@@ -17,9 +17,10 @@ changes. The other five supported app versions are unchanged.
 - The generated APK installed and opened on the source V6 Plus. No fatal
   exception was observed during this check.
 
-Playback on a separate Android TV device and a 5.9.4 regression build are
-still pending. Do not treat this candidate as a published release until those
-checks pass.
+At the owner's request, playback on a separate Android TV device was skipped
+for this update. A 5.9.4 regression build has not been run. The 0.7.14 APK is
+available in the local live folder; these untested paths must not be described
+as verified. This note does not claim a public release.
 
 Generated owner APKs contain box-specific information and must not be
 committed to this repository.
