@@ -1,4 +1,4 @@
-# 0.7.13 local candidate
+# 0.7.13 development notes
 
 This candidate is for V6 and target-device testing. The published 0.7.12 release remains the last owner-tested build.
 
@@ -8,4 +8,4 @@ Generated apps keep their normal names. Their launcher icons and Android TV bann
 
 Local checks passed: the Android build, integrated relay hash, installer signature, six embedded-template hashes, and APK resource compilation. All six branded templates retain byte-identical DEX files, libraries, and nonvisual assets from the 0.7.12 templates. The V6 export, selective builds, launcher appearance, and target playback have **not yet been tested** for this candidate.
 
-Do not publish this candidate as a release until those device checks pass. It is held on the local `selectable-apps-branding` branch while the repository visibility decision is pending.
+The release notes explicitly identify the missing device tests. The repository remains private while the source is hidden from public view.
