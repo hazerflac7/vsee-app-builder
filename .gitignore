@@ -1,4 +1,6 @@
 .gradle/
+build-preview/
+**/__pycache__/
 **/build/
 local.properties
 live/

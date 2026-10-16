@@ -13,9 +13,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-/** One owner action creates six APKs or removes this batch on failure. */
+/** One owner action creates selected APKs or removes this batch on failure. */
 final class SixApkBuilder {
-    interface Progress { void update(int completed, String message); }
+    interface Progress { void update(int completed, int appIndex, String message); }
 
     static final class Result {
         final String folder;
@@ -29,10 +29,17 @@ final class SixApkBuilder {
 
     private SixApkBuilder() {}
 
-    static Result buildAll(Context context, Progress progress) throws Exception {
+    static Result buildSelected(Context context, boolean[] selected, Progress progress)
+            throws Exception {
+        if (selected == null || selected.length != 6) {
+            throw new HeatLiveApkBuilder.BuildFailure("INVALID_SELECTION");
+        }
+        int total = 0;
+        for (boolean value : selected) if (value) total++;
+        if (total == 0) throw new HeatLiveApkBuilder.BuildFailure("NO_APPS_SELECTED");
         HeatLiveGate.Result live = HeatLiveGate.inspect(context);
-        if (!live.supported() || !OtherHeatGate.allSupported(
-                OtherHeatGate.inspectAll(context))) {
+        if (!live.supported() || !OtherHeatGate.selectedSupported(
+                OtherHeatGate.inspectAll(context), selected)) {
             throw new HeatLiveApkBuilder.BuildFailure("COMPATIBILITY_CHANGED");
         }
         JSONObject profile;
@@ -47,36 +54,43 @@ final class SixApkBuilder {
         if (owner == null) {
             throw new HeatLiveApkBuilder.BuildFailure("OWNER_KEY_UNAVAILABLE");
         }
-        String[] additionalIds = PrivilegedCollector.currentAdditionalIds(context);
+        String[] additionalIds = PrivilegedCollector.currentAdditionalIds(context, selected);
 
         String folder = "Vsee-Apps-" + new SimpleDateFormat("yyyyMMdd-HHmmss",
                 Locale.US).format(new Date());
         String relativePath = Environment.DIRECTORY_DOWNLOADS + "/" + folder + "/";
-        List<Uri> exported = new ArrayList<>(6);
+        List<Uri> exported = new ArrayList<>(total);
         try {
-            progress.update(0, "Making 1 of 6: Heat Live");
-            exported.add(HeatLiveApkBuilder.build(context, relativePath));
-            progress.update(1, "Saved 1 of 6: Heat Live");
+            if (selected[0]) {
+                progress.update(0, 0, "Making 1 of " + total + ": Heat Live");
+                exported.add(HeatLiveApkBuilder.build(context, relativePath));
+                progress.update(1, 0, "Saved 1 of " + total + ": Heat Live");
+            }
             for (int index = 0; index < HeatAppSpec.OTHER.length; index++) {
+                if (!selected[index + 1]) continue;
                 HeatAppSpec.Spec spec = HeatAppSpec.OTHER[index];
-                progress.update(index + 1, "Making " + (index + 2) + " of 6: " + spec.label);
+                int ordinal = exported.size() + 1;
+                progress.update(exported.size(), index + 1,
+                        "Making " + ordinal + " of " + total + ": " + spec.label);
                 JSONObject appProfile = new JSONObject(profile.toString());
                 appProfile.put("androidId", additionalIds[index]);
                 DeviceProfileReader.validate(appProfile);
                 exported.add(OtherHeatApkBuilder.build(context, spec, appProfile,
                         owner, relativePath));
-                progress.update(index + 2, "Saved " + (index + 2)
-                        + " of 6: " + spec.label);
+                progress.update(exported.size(), index + 1,
+                        "Saved " + ordinal + " of " + total + ": " + spec.label);
             }
             HeatLiveApkBuilder.verifyCurrentProfile(context, live.originalUid, profile);
             if (!Arrays.equals(additionalIds,
-                    PrivilegedCollector.currentAdditionalIds(context))) {
+                    PrivilegedCollector.currentAdditionalIds(context, selected))) {
                 throw new HeatLiveApkBuilder.BuildFailure("IDENTITY_CHANGED");
             }
-            if (!OtherHeatGate.allSupported(OtherHeatGate.inspectAll(context))) {
+            if (!OtherHeatGate.selectedSupported(
+                    OtherHeatGate.inspectAll(context), selected)) {
                 throw new HeatLiveApkBuilder.BuildFailure("COMPATIBILITY_CHANGED");
             }
-            progress.update(6, "All six APKs saved");
+            progress.update(total, -1, "All " + total + " selected "
+                    + (total == 1 ? "APK" : "APKs") + " saved");
             return new Result(folder, exported.size());
         } catch (Exception failure) {
             boolean removed = true;

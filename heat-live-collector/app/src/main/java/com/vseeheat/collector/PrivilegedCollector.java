@@ -24,11 +24,12 @@ final class PrivilegedCollector {
     private static final ComponentName SERVICE = new ComponentName(
             "com.define.shellservice", "com.define.shellservice.ShellService");
     private static final SecureRandom RANDOM = new SecureRandom();
+    private static final boolean[] BASELINE_ONLY = new boolean[6];
 
     private PrivilegedCollector() {}
 
     static String collect(Context context) {
-        Reply reply = probe(context);
+        Reply reply = probe(context, BASELINE_ONLY);
         if (!"OK".equals(reply.status)) return reply.status;
         try {
             PrivateProfileStore.save(context, reply.originalUid,
@@ -49,7 +50,7 @@ final class PrivilegedCollector {
                 || !expectedRandomSn.matches("[!-~]{40}")) {
             return "CHECK_FAILED";
         }
-        Reply reply = probe(context);
+        Reply reply = probe(context, BASELINE_ONLY);
         if (!"OK".equals(reply.status)) return reply.status;
         if (reply.originalUid != expectedUid
                 || !same(reply.androidId, expectedAndroidId)
@@ -60,14 +61,14 @@ final class PrivilegedCollector {
     }
 
     /** Reads the five originals' current app-specific IDs for the six-APK batch. */
-    static String[] currentAdditionalIds(Context context)
+    static String[] currentAdditionalIds(Context context, boolean[] selected)
             throws HeatLiveApkBuilder.BuildFailure {
-        Reply reply = probe(context);
+        Reply reply = probe(context, selected);
         if (!"OK".equals(reply.status)) {
             throw new HeatLiveApkBuilder.BuildFailure(reply.status);
         }
         for (int index = 0; index < reply.additionalIds.length; index++) {
-            if (reply.additionalIds[index].isEmpty()) {
+            if (selected[index + 1] && reply.additionalIds[index].isEmpty()) {
                 throw new HeatLiveApkBuilder.BuildFailure("OPEN_ORIGINAL_APP_" + (index + 2));
             }
         }
@@ -83,14 +84,19 @@ final class PrivilegedCollector {
         return new Reply(status, "", "", -1, new String[5]);
     }
 
-    private static Reply probe(Context context) {
+    private static Reply probe(Context context, boolean[] selected) {
+        if (selected == null || selected.length != 6) return failed("CHECK_FAILED");
         // Recheck everything at the tap; the original app could have updated since
         // the previous screen scan. Never dispatch a privileged command otherwise.
         HeatLiveGate.Result gate = HeatLiveGate.inspect(context);
         OtherHeatGate.Status[] otherApps = OtherHeatGate.inspectAll(context);
-        if (!gate.supported() || !OtherHeatGate.allSupported(otherApps)
-                || !VendorServiceGate.isTrusted(context)) {
+        if (!gate.supported() || !VendorServiceGate.isTrusted(context)) {
             return failed("CHECK_FAILED");
+        }
+        for (int index = 0; index < otherApps.length; index++) {
+            if (selected[index + 1] && !otherApps[index].supported()) {
+                return failed("CHECK_FAILED");
+            }
         }
         String source = context.getApplicationInfo().sourceDir;
         if (source == null || !source.startsWith("/data/app/")) {
@@ -151,7 +157,8 @@ final class PrivilegedCollector {
                     + "com.vseeheat.collector.ProfileProbeMain "
                     + quote(socketName) + " " + quote(token) + " " + gate.originalUid;
             for (OtherHeatGate.Status app : otherApps) {
-                command += " " + app.originalUid;
+                command += " " + (app.supported()
+                        ? Integer.toString(app.originalUid) : "00000");
             }
             command += " >/dev/null 2>&1";
             Intent request = new Intent().setComponent(SERVICE).putExtra("command", command);

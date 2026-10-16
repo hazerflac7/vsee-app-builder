@@ -36,7 +36,7 @@ import java.util.zip.ZipOutputStream;
 final class HeatLiveApkBuilder {
     private static final String TEMPLATE = "heat-live-template.apk";
     private static final String TEMPLATE_SHA256 =
-            "95ac2a2a54bdda1cdbb831b3952b3276531f2d1078fa99cce6a018fea3041b64";
+            "47949636053c79567ef5c34ec898f3d4927b0d7c0655dfd1ca54c29fc33c30a9";
     private static final String PLACEHOLDER_SHA256 =
             "a10a25533957d04d21db6c5aae100b047350908bbe890f0ed4d30b937195f345";
     private static final String PROFILE_ENTRY = "assets/v6-owner-profile.json";
@@ -48,7 +48,7 @@ final class HeatLiveApkBuilder {
             "003e750fd452c52b1ee524a98b794637f9cc7f481a2da6c527e0324bc3415ad6";
     private static final int PIN32_OFFSET = 731_414;
     private static final int PIN64_OFFSET = 1_006_780;
-    private static final int ENTRY_COUNT = 1797;
+    private static final int ENTRY_COUNT = 1801;
     static final String OUTPUT_NAME = "Heat-Live-V6-Owner-5.9.4.apk";
 
     private HeatLiveApkBuilder() {}

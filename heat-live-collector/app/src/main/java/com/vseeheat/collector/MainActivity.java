@@ -22,8 +22,10 @@ import android.widget.Toast;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/** Local TV flow for six verified source app owner builds. */
+/** Local TV flow for selected, verified source app owner builds. */
 public final class MainActivity extends Activity {
+    private static final String[] APP_LABELS = {"Heat Live", "HeatVod", "Vod Ultra",
+            "HeatLive Backup", "Live Ultra", "Live Ultra+"};
     // A changed notice must be accepted again, including after an in-place update.
     private static final String AGREEMENT_PREF = "testing_terms_v2_accepted";
     private static final String AGREEMENT_TIME_PREF = "testing_terms_v2_accepted_at";
@@ -38,7 +40,11 @@ public final class MainActivity extends Activity {
     private TextView buildStatus;
     private ProgressBar workProgress;
     private final TextView[] appStates = new TextView[6];
+    private final TextView[] appNames = new TextView[6];
     private final LinearLayout[] appTiles = new LinearLayout[6];
+    private final boolean[] matched = new boolean[6];
+    private final boolean[] selected = new boolean[6];
+    private boolean[] buildSelection;
     private int verifiedUid = -1;
     private boolean fullReady;
     private boolean busy;
@@ -128,8 +134,6 @@ public final class MainActivity extends Activity {
         add(body, "Compatibility results appear here after the check.", 12,
                 Color.rgb(155, 173, 195), 19);
 
-        String[] labels = {"Heat Live", "HeatVod", "Vod Ultra", "HeatLive Backup",
-                "Live Ultra", "Live Ultra+"};
         for (int rowIndex = 0; rowIndex < 2; rowIndex++) {
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
@@ -149,8 +153,9 @@ public final class MainActivity extends Activity {
                         0, LinearLayout.LayoutParams.MATCH_PARENT, 1);
                 if (col != 2) tileLayout.rightMargin = dp(10);
                 row.addView(tile, tileLayout);
-                TextView appName = add(tile, labels[index], 15, Color.WHITE, 15);
+                TextView appName = add(tile, APP_LABELS[index], 15, Color.WHITE, 15);
                 appName.setTypeface(null, Typeface.BOLD);
+                appNames[index] = appName;
                 TextView tileState = add(tile, "NOT CHECKED", 10,
                         Color.rgb(147, 171, 195), 0);
                 tileState.setTypeface(null, Typeface.BOLD);
@@ -158,6 +163,10 @@ public final class MainActivity extends Activity {
                 tileState.setMaxLines(2);
                 appStates[index] = tileState;
                 appTiles[index] = tile;
+                tile.setFocusable(true);
+                tile.setClickable(true);
+                tile.setOnClickListener(view -> toggleSelection(index));
+                tile.setOnFocusChangeListener((view, focused) -> refreshTile(index));
             }
         }
 
@@ -179,7 +188,7 @@ public final class MainActivity extends Activity {
         progress.setLetterSpacing(0.11f);
         heroTitle = add(messages, "Ready to check this V6.", 15, Color.WHITE, 5);
         heroTitle.setTypeface(null, Typeface.BOLD);
-        heroBody = add(messages, "Check all six apps before making APKs.", 12,
+        heroBody = add(messages, "Check the apps, then choose which APKs to make.", 12,
                 Color.rgb(166, 182, 204), 6);
         heroBody.setMaxLines(3);
         status = add(messages, "", 11, Color.rgb(255, 178, 166), 5);
@@ -222,7 +231,7 @@ public final class MainActivity extends Activity {
         makeButton.setTextSize(14);
         makeButton.setOnClickListener(view -> makeApks());
 
-        TextView byline = add(body, "BY TORR3NT'S TECH  ·  SIX FILES TO DOWNLOADS", 10,
+        TextView byline = add(body, "BY TORR3NT'S TECH  ·  SELECTED FILES TO DOWNLOADS", 10,
                 Color.rgb(128, 151, 181), 0);
         byline.setLetterSpacing(0.07f);
         LinearLayout.LayoutParams bylineLayout = (LinearLayout.LayoutParams)
@@ -247,7 +256,7 @@ public final class MainActivity extends Activity {
                 Color.WHITE, 13);
         heading.setTypeface(null, Typeface.BOLD);
         add(box, "Vsee App Builder is an experimental testing tool. It uses information "
-                        + "from this V6 to make six modified app files. Use it only for lawful "
+                        + "from this V6 to make selected modified app files. Use it only for lawful "
                         + "tests on devices and apps you own or are authorized to manage. "
                         + "We recommend that you do not use it with any vSeeBox or Heat account "
                         + "or service unless the provider has expressly authorized your test.",
@@ -326,16 +335,19 @@ public final class MainActivity extends Activity {
     }
 
     private void makeApks() {
-        if (busy || verifiedUid < 0) return;
+        if (busy || verifiedUid < 0 || selectedCount() == 0) return;
+        buildSelection = selected.clone();
+        int count = selectedCount();
         recordStage("MAKE_PRESSED");
         exported = false;
         buildStatus.setVisibility(View.GONE);
         busy = true;
         refreshButtons();
         workProgress.setVisibility(View.VISIBLE);
+        workProgress.setMax(2 + count);
         workProgress.setProgress(0);
         workProgress.setIndeterminate(true);
-        heroTitle.setText("Preparing your six APKs…");
+        heroTitle.setText("Preparing " + apkCountLabel(count) + "…");
         heroBody.setText("Starting V6 access. This may take a moment.");
         progress.setText("STARTING V6 ACCESS");
         worker.execute(() -> {
@@ -380,6 +392,11 @@ public final class MainActivity extends Activity {
     }
 
     private void inspect() {
+        verifiedUid = -1;
+        for (int index = 0; index < selected.length; index++) {
+            selected[index] = false;
+            matched[index] = false;
+        }
         busy = true;
         refreshButtons();
         heroTitle.setText("Checking compatibility…");
@@ -393,8 +410,7 @@ public final class MainActivity extends Activity {
                 final HeatLiveGate.Result result = HeatLiveGate.inspect(getApplicationContext());
                 final OtherHeatGate.Status[] others = OtherHeatGate.inspectAll(
                         getApplicationContext());
-                final boolean allCompatible = result.supported()
-                        && OtherHeatGate.allSupported(others);
+                final boolean ready = result.supported();
                 boolean full = false;
                 if (result.supported()) {
                     try {
@@ -406,34 +422,41 @@ public final class MainActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override public void run() {
                         if (isFinishing() || isDestroyed()) return;
-                        verifiedUid = allCompatible ? result.originalUid : -1;
+                        verifiedUid = ready ? result.originalUid : -1;
                         fullReady = hasFull;
                         busy = false;
+                        matched[0] = result.supported();
+                        selected[0] = ready;
                         setAppState(0, result.supported() ? "MATCHED"
                                 : heatLiveReason(result), result.supported());
                         for (int index = 0; index < others.length; index++) {
                             OtherHeatGate.Status other = others[index];
+                            matched[index + 1] = other.supported();
+                            selected[index + 1] = ready && other.supported();
                             setAppState(index + 1, other.supported() ? "MATCHED"
                                     : other.reason(), other.supported());
                         }
                         status.setVisibility(View.GONE);
-                        if (allCompatible) {
-                            heroTitle.setText("All six original apps match");
-                            heroBody.setText("Check that the original live TV app plays on this V6. "
-                                    + "Then select Make APKs to create six files in Downloads.");
-                            progress.setText("STEP 2 OF 2  /  SIX APPS VERIFIED");
+                        if (ready) {
+                            int count = selectedCount();
+                            heroTitle.setText(count + " compatible "
+                                    + (count == 1 ? "app" : "apps") + " selected");
+                            heroBody.setText("Press OK on a matched tile to add or remove it. "
+                                    + "Only selected apps will be saved in Downloads.");
+                            progress.setText("STEP 2 OF 2  /  " + count + " APPS SELECTED");
                         } else {
-                            heroTitle.setText("Compatibility needs attention");
+                            heroTitle.setText("Heat Live setup needs attention");
                             heroBody.setText(result.trustedUpdateDetected()
                                     ? "The original live TV app has changed to version "
                                             + result.installedVersion + ". This builder needs "
                                             + "an update before it can make a new app."
-                                    : "One or more original apps need attention. "
-                                            + "Review the tiles above, then try again.");
+                                    : "The original Heat Live app is required to read this "
+                                            + "V6's setup, even if you only want other apps. "
+                                            + "Review its tile, then try again.");
                             progress.setText("CHECK NEEDS ATTENTION");
                         }
                         refreshButtons();
-                        if (allCompatible) makeButton.requestFocus();
+                        if (ready) makeButton.requestFocus();
                     }
                 });
             }
@@ -442,10 +465,11 @@ public final class MainActivity extends Activity {
 
     private void collect() {
         if (verifiedUid < 0) return;
+        int count = buildCount();
         recordStage("COLLECTING");
         busy = true;
         refreshButtons();
-        heroTitle.setText("Preparing your six APKs…");
+        heroTitle.setText("Preparing " + apkCountLabel(count) + "…");
         heroBody.setText("Reading this V6's setup. Keep it on while the file is made.");
         progress.setText("READING THIS V6'S SETUP");
         worker.execute(new Runnable() {
@@ -478,8 +502,8 @@ public final class MainActivity extends Activity {
                             recordStage("PROFILE_READY");
                             workProgress.setProgress(2);
                             heroTitle.setText("Setup is ready");
-                            heroBody.setText("Making all six install files now.");
-                            progress.setText("SETUP READY  /  MAKING SIX APKs");
+                            heroBody.setText("Making your " + count + " selected files now.");
+                            progress.setText("SETUP READY  /  MAKING " + apkCountLabel(count));
                         } else {
                             recordStage("SAVED".equals(result) ? stage : result);
                             buildAfterCollect = false;
@@ -503,12 +527,14 @@ public final class MainActivity extends Activity {
     }
 
     private void buildApk() {
-        if (verifiedUid < 0 || !fullReady) return;
+        if (verifiedUid < 0 || !fullReady || buildSelection == null) return;
+        final boolean[] selection = buildSelection.clone();
+        final int count = buildCount();
         recordStage("BUILDING");
         busy = true;
         refreshButtons();
-        progress.setText("MAKING SIX APKs");
-        heroTitle.setText("Making your six APKs…");
+        progress.setText("MAKING " + apkCountLabel(count));
+        heroTitle.setText("Making your " + apkCountLabel(count) + "…");
         heroBody.setText("Keep the V6 on while each app is checked and saved.");
         buildStatus.setVisibility(View.GONE);
         worker.execute(() -> {
@@ -519,18 +545,19 @@ public final class MainActivity extends Activity {
                         getApplicationContext());
                 if (owner == null) owner = OwnerSigningKeys.createLocal(
                         getApplicationContext());
-                SixApkBuilder.Result output = SixApkBuilder.buildAll(
-                        getApplicationContext(), (completed, message) -> runOnUiThread(() -> {
+                SixApkBuilder.Result output = SixApkBuilder.buildSelected(
+                        getApplicationContext(), selection,
+                        (completed, appIndex, message) -> runOnUiThread(() -> {
                             if (!isFinishing() && !isDestroyed()) {
                                 heroBody.setText(message);
                                 workProgress.setProgress(2 + completed);
-                                if (completed > 0 && completed <= appStates.length) {
-                                    setAppState(completed - 1, "APK SAVED", true);
+                                if (appIndex >= 0 && message.startsWith("Saved ")) {
+                                    setAppState(appIndex, "APK SAVED", true);
                                 }
                             }
                         }));
                 outputFolder = output.folder;
-                result = output.count == 6 ? "SAVED" : "EXPORT_FAILED";
+                result = output.count == count ? "SAVED" : "EXPORT_FAILED";
             } catch (HeatLiveApkBuilder.BuildFailure failure) {
                 result = failure.stage;
             } catch (Exception ignored) {
@@ -543,30 +570,32 @@ public final class MainActivity extends Activity {
                 busy = false;
                 exported = "SAVED".equals(stage);
                 recordStage(stage);
-                workProgress.setProgress(exported ? 8 : workProgress.getProgress());
+                workProgress.setProgress(exported ? 2 + count : workProgress.getProgress());
                 if (!exported) workProgress.setVisibility(View.GONE);
                 if (!exported) {
                     for (int index = 0; index < appStates.length; index++) {
-                        setAppState(index, "PARTIAL_OUTPUTS".equals(stage)
-                                ? "CHECK DOWNLOADS" : "CHECK AGAIN", false);
+                        if (selection[index]) {
+                            setAppState(index, "PARTIAL_OUTPUTS".equals(stage)
+                                    ? "CHECK DOWNLOADS" : "CHECK AGAIN", false);
+                        }
                     }
                 }
                 if ("IDENTITY_CHANGED".equals(stage)) {
                     fullReady = false;
                 }
                 heroTitle.setText(exported
-                        ? "Your six APKs are ready"
+                        ? "Your " + apkCountLabel(count) + (count == 1 ? " is ready" : " are ready")
                         : "The APKs were not made");
                 heroBody.setText(exported
                         ? "Find the " + folder + " folder in Downloads. "
-                                + "Copy the six files to a USB drive and install them on your other TV."
+                                + "Copy the selected files to a USB drive and install them on your other TV."
                         : "IDENTITY_CHANGED".equals(stage)
                         ? "An original app changed on this V6. Read the setup again."
                         : missingOriginalMessage(stage) != null
                         ? missingOriginalMessage(stage)
                         : "The build stopped. See the error below, then try again.");
                 progress.setText(exported
-                        ? "6 APKs SAVED"
+                        ? apkCountLabel(count) + " SAVED"
                         : "BUILD NEEDS ATTENTION");
                 buildStatus.setText("IDENTITY_CHANGED".equals(stage)
                         ? "The APK was not exported. Collect protected setup "
@@ -583,9 +612,63 @@ public final class MainActivity extends Activity {
         checkButton.setEnabled(!busy);
         checkButton.setText(busy && verifiedUid < 0
                 ? "Checking…" : "1   Check compatibility");
-        makeButton.setEnabled(!busy && verifiedUid >= 0);
+        int count = selectedCount();
+        makeButton.setEnabled(!busy && verifiedUid >= 0 && count > 0);
         makeButton.setText(busy && verifiedUid >= 0
-                ? "Making APKs…" : exported ? "2   Make APKs again" : "2   Make APKs");
+                ? "Making APKs…" : exported ? "2   Make " + apkCountLabel(count) + " again"
+                : count > 0 ? "2   Make " + apkCountLabel(count) : "2   Make APKs");
+        for (int index = 0; index < appTiles.length; index++) {
+            if (appTiles[index] != null) appTiles[index].setEnabled(!busy && verifiedUid >= 0
+                    && matched[index]);
+        }
+    }
+
+    private int selectedCount() {
+        int count = 0;
+        for (boolean value : selected) if (value) count++;
+        return count;
+    }
+
+    private static String apkCountLabel(int count) {
+        return count + (count == 1 ? " APK" : " APKs");
+    }
+
+    private int buildCount() {
+        int count = 0;
+        if (buildSelection != null) {
+            for (boolean value : buildSelection) if (value) count++;
+        }
+        return count;
+    }
+
+    private void toggleSelection(int index) {
+        if (busy || verifiedUid < 0 || !matched[index]) return;
+        selected[index] = !selected[index];
+        exported = false;
+        setAppState(index, selected[index] ? "MATCHED · SELECTED" : "MATCHED · SKIPPED", true);
+        int count = selectedCount();
+        heroTitle.setText(count == 0 ? "Choose at least one app"
+                : count + (count == 1 ? " app selected" : " apps selected"));
+        heroBody.setText("Press OK on a tile to add or remove it. "
+                + "Make APKs saves only the selected apps.");
+        progress.setText("STEP 2 OF 2  /  " + count + " APPS SELECTED");
+        refreshButtons();
+    }
+
+    private void refreshTile(int index) {
+        if (appTiles[index] == null || appNames[index] == null) return;
+        boolean checked = selected[index] && verifiedUid >= 0;
+        appNames[index].setText((verifiedUid >= 0 && matched[index]
+                ? checked ? "☑  " : "☐  " : "") + APP_LABELS[index]);
+        appTiles[index].setContentDescription(APP_LABELS[index] + ", "
+                + (matched[index] ? checked ? "selected" : "not selected"
+                : appStates[index].getText()));
+        boolean focused = appTiles[index].hasFocus();
+        int fill = focused ? Color.rgb(39, 64, 88)
+                : checked ? Color.rgb(27, 57, 68) : Color.rgb(31, 45, 64);
+        int edge = focused ? Color.rgb(100, 211, 201)
+                : checked ? Color.rgb(69, 153, 151) : Color.rgb(59, 80, 106);
+        appTiles[index].setBackground(roundRect(fill, edge, 9));
     }
 
     private void setAppState(int index, String value, boolean good) {
@@ -594,9 +677,7 @@ public final class MainActivity extends Activity {
         appStates[index].setText(value);
         appStates[index].setTextColor(good ? Color.rgb(105, 221, 205)
                 : waiting ? Color.rgb(147, 171, 195) : Color.rgb(255, 179, 163));
-        appTiles[index].setBackground(roundRect(good ? Color.rgb(27, 57, 68)
-                        : Color.rgb(31, 45, 64),
-                good ? Color.rgb(69, 153, 151) : Color.rgb(59, 80, 106), 9));
+        refreshTile(index);
     }
 
     private static String heatLiveReason(HeatLiveGate.Result result) {

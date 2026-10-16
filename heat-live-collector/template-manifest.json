@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "template_apk_sha256": "95ac2a2a54bdda1cdbb831b3952b3276531f2d1078fa99cce6a018fea3041b64",
+  "template_apk_sha256": "47949636053c79567ef5c34ec898f3d4927b0d7c0655dfd1ca54c29fc33c30a9",
   "template_unsigned": true,
   "profile_asset_path": "assets/v6-owner-profile.json",
   "profile_schema_keys": [
@@ -35,5 +35,5 @@
       "pin_length": 32
     }
   ],
-  "payload_entry_count": 1797
+  "payload_entry_count": 1801
 }

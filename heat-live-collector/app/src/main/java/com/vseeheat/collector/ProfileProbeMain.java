@@ -54,6 +54,7 @@ public final class ProfileProbeMain {
                 String table = rootAdb.readSsaid();
                 androidId = readSsaid(table, args[2], PACKAGE);
                 for (int index = 0; index < ADDITIONAL_PACKAGES.length; index++) {
+                    if ("00000".equals(args[index + 3])) continue;
                     String found = readSsaid(table, args[index + 3],
                             ADDITIONAL_PACKAGES[index]);
                     additionalIds[index] = found == null ? "" : found;

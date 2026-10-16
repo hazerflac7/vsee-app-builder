@@ -28,6 +28,16 @@ final class OtherHeatGate {
         return true;
     }
 
+    static boolean selectedSupported(Status[] checks, boolean[] selected) {
+        if (checks == null || checks.length != HeatAppSpec.OTHER.length
+                || selected == null || selected.length != 6) return false;
+        for (int index = 0; index < checks.length; index++) {
+            if (selected[index + 1] && (checks[index] == null
+                    || !checks[index].supported())) return false;
+        }
+        return true;
+    }
+
     static String summary(Status[] checks) {
         StringBuilder summary = new StringBuilder("Additional Heat apps:\n");
         if (checks == null) return summary.append("Not checked").toString();

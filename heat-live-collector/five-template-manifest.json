@@ -1,8 +1,8 @@
 {
   "heatvod": {
     "asset": "heatvod-template.apk",
-    "sha256": "cb2227d45a432dc01baf575126e2b40150dda5849917ac85ec1beb2fc066a0a0",
-    "entryCount": 1529,
+    "sha256": "72bf86f5ac436d50615cb29ac7776e3dff4f6c953183c5d1e6fa25f6b3e157f1",
+    "entryCount": 1536,
     "pinOffsets": {
       "lib/arm64-v8a/libjson.so": 1006780,
       "lib/armeabi-v7a/libjson.so": 731414
@@ -14,8 +14,8 @@
   },
   "heatvodultra": {
     "asset": "heatvodultra-template.apk",
-    "sha256": "b183edd10fc72f0d314c7e69875409c9f60219bc0e97db62047862851317c6dd",
-    "entryCount": 1580,
+    "sha256": "1cf4d0b4719a97cbb9a456fd2e67f102a09da523b07c15189f644344899f135f",
+    "entryCount": 1584,
     "pinOffsets": {
       "lib/arm64-v8a/libjson.so": 1006780,
       "lib/armeabi-v7a/libjson.so": 731414
@@ -27,8 +27,8 @@
   },
   "heatlivebackup": {
     "asset": "heatlivebackup-template.apk",
-    "sha256": "e09cd5c92a00bc8b1fe4a9c52a5d4022bc799be3a79b1b51ffe8b10f586c0138",
-    "entryCount": 1712,
+    "sha256": "99657672ffca63f45414f48198bc34146a26ae0d26913078ce3103cd752969b2",
+    "entryCount": 1716,
     "pinOffsets": {
       "lib/arm64-v8a/libjson.so": 1006827,
       "lib/armeabi-v7a/libjson.so": 731461
@@ -40,8 +40,8 @@
   },
   "liveultra": {
     "asset": "liveultra-template.apk",
-    "sha256": "5f979ed296451d4f3cbfd45d83b95b7dc49a8fa84abd126aa4111d95abe5a7d9",
-    "entryCount": 1835,
+    "sha256": "08ba332482a5b286e7314517e7e1a554635029008d2bce37de0b749005b9f21f",
+    "entryCount": 1839,
     "pinOffsets": {
       "lib/arm64-v8a/libjson.so": 1006780,
       "lib/armeabi-v7a/libjson.so": 731414
@@ -53,8 +53,8 @@
   },
   "liveultraplus": {
     "asset": "liveultraplus-template.apk",
-    "sha256": "746fed1a057ca76228ebc249162a633ba4455d278325874af72fc22feed61820",
-    "entryCount": 1840,
+    "sha256": "ed44a6bd403d71e979dfac9b6865939465ce141859ae646b224b279ebf60cd3c",
+    "entryCount": 1844,
     "pinOffsets": {
       "lib/arm64-v8a/libjson.so": 1006780,
       "lib/armeabi-v7a/libjson.so": 731414
