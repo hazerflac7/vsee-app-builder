@@ -34,9 +34,12 @@ import java.util.zip.ZipOutputStream;
 
 /** Offline exact-template builder; never starts or installs the generated app. */
 final class HeatLiveApkBuilder {
-    private static final String TEMPLATE = "heat-live-template.apk";
-    private static final String TEMPLATE_SHA256 =
+    private static final String TEMPLATE_594 = "heat-live-template.apk";
+    private static final String TEMPLATE_595 = "heat-live-595-template.apk";
+    private static final String TEMPLATE_SHA256_594 =
             "47949636053c79567ef5c34ec898f3d4927b0d7c0655dfd1ca54c29fc33c30a9";
+    private static final String TEMPLATE_SHA256_595 =
+            "35be87a84f89322b2097bbbf97060e814d8363be5b2ec795acd9e5d121f5aeb1";
     private static final String PLACEHOLDER_SHA256 =
             "a10a25533957d04d21db6c5aae100b047350908bbe890f0ed4d30b937195f345";
     private static final String PROFILE_ENTRY = "assets/v6-owner-profile.json";
@@ -49,8 +52,6 @@ final class HeatLiveApkBuilder {
     private static final int PIN32_OFFSET = 731_414;
     private static final int PIN64_OFFSET = 1_006_780;
     private static final int ENTRY_COUNT = 1801;
-    static final String OUTPUT_NAME = "Heat-Live-V6-Owner-5.9.4.apk";
-
     private HeatLiveApkBuilder() {}
 
     static Uri build(Context context) throws Exception {
@@ -60,6 +61,10 @@ final class HeatLiveApkBuilder {
     static Uri build(Context context, String relativePath) throws Exception {
         HeatLiveGate.Result gate = HeatLiveGate.inspect(context);
         if (!gate.supported()) throw new BuildFailure("CHECK_FAILED");
+        boolean is595 = "5.9.5".equals(gate.installedVersion);
+        String templateAsset = is595 ? TEMPLATE_595 : TEMPLATE_594;
+        String templateHash = is595 ? TEMPLATE_SHA256_595 : TEMPLATE_SHA256_594;
+        String outputName = "Heat-Live-V6-Owner-" + gate.installedVersion + ".apk";
         JSONObject profile;
         try {
             profile = PrivateProfileStore.loadFull(context, gate.originalUid);
@@ -79,11 +84,11 @@ final class HeatLiveApkBuilder {
         File unsigned = File.createTempFile("heat-unsigned-", ".apk", context.getCacheDir());
         File signed = File.createTempFile("heat-signed-", ".apk", context.getCacheDir());
         try {
-            try (InputStream input = context.getAssets().open(TEMPLATE);
+            try (InputStream input = context.getAssets().open(templateAsset);
                  OutputStream output = new FileOutputStream(template)) {
                 copy(input, output, 32 * 1024 * 1024);
             }
-            if (!TEMPLATE_SHA256.equals(sha256(template))) {
+            if (!templateHash.equals(sha256(template))) {
                 throw new BuildFailure("TEMPLATE_MISMATCH");
             }
             byte[] pin = ownerPin(owner.certificate);
@@ -112,7 +117,7 @@ final class HeatLiveApkBuilder {
                 throw new BuildFailure("CHECK_FAILED");
             }
             verifyCurrentProfile(context, gate.originalUid, profile);
-            return exportDownloads(context, signed, OUTPUT_NAME, relativePath);
+            return exportDownloads(context, signed, outputName, relativePath);
         } finally {
             template.delete();
             unsigned.delete();

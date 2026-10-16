@@ -27,18 +27,23 @@ final class HeatLiveGate {
     private static final String PACKAGE = "com.google.heatlive";
     private static final String FIRMWARE_FINGERPRINT =
             "Amlogic/qurra/qurra:14/UD2A.240505.001.W1/define07141701:userdebug/dev-keys";
-    private static final String VERSION_NAME = "5.9.4";
-    private static final long VERSION_CODE = 594;
-    private static final long APK_BYTES = 24_045_136L;
+    private static final String VERSION_594 = "5.9.4";
+    private static final String VERSION_595 = "5.9.5";
+    private static final long APK_BYTES_594 = 24_045_136L;
+    private static final long APK_BYTES_595 = 24_054_804L;
     static final long MAX_APK_BYTES = 64L * 1024 * 1024;
     private static final long MAX_UNCOMPRESSED_BYTES = 64L * 1024 * 1024;
-    private static final String APK_SHA256 =
+    private static final String APK_SHA256_594 =
             "2f1b8c3ec233867f715d664061e00f2e8bf6f4fa5a79b301405140d096177822";
+    private static final String APK_SHA256_595 =
+            "f5f4c4147f54a4720d7ed0cc6b30d7657d0e603a7098422a8aa676e399b8d37b";
     // Digest of sorted APK entry names, lengths and uncompressed contents, excluding
     // the Android v1 signature files. Recompression may change the APK hash without
     // changing the app. Code, resources and manifest must still match exactly.
-    private static final String PAYLOAD_SHA256 =
+    private static final String PAYLOAD_SHA256_594 =
             "09eaeef2d402cbbc774f8314dcf90b62047ddf69b87345f9342122d888f5920f";
+    private static final String PAYLOAD_SHA256_595 =
+            "bc42e09a79fcff8b45515eddccb2bf43c7c533df8d19a47303187abe9fbf05eb";
     static final String SIGNER_SHA256 =
             "cb4e4c877a0247dfa23e926cb369a7f4901208a722e215bc24493848ac32e020";
 
@@ -70,8 +75,7 @@ final class HeatLiveGate {
             originalFound = true;
             installedVersion = safeBuildText(info.versionName);
             installedVersionCode = info.getLongVersionCode();
-            versionMatches = VERSION_CODE == info.getLongVersionCode()
-                    && VERSION_NAME.equals(info.versionName);
+            versionMatches = approvedVersion(info.versionName, info.getLongVersionCode());
             ApplicationInfo app = info.applicationInfo;
             if (app != null) originalUid = app.uid;
             ownerUser = ownerUser && originalUid >= 10_000 && originalUid < 100_000;
@@ -92,10 +96,16 @@ final class HeatLiveGate {
                         && apk.length() <= MAX_APK_BYTES) {
                     byte[] digest = hashFile(apk);
                     apkReadable = digest != null;
-                    apkMatches = digest != null && apk.length() == APK_BYTES
-                            && APK_SHA256.equals(toHex(digest));
+                    boolean is595 = VERSION_595.equals(info.versionName);
+                    long expectedBytes = is595 ? APK_BYTES_595 : APK_BYTES_594;
+                    String expectedHash = is595 ? APK_SHA256_595 : APK_SHA256_594;
+                    String expectedPayload = is595
+                            ? PAYLOAD_SHA256_595 : PAYLOAD_SHA256_594;
+                    apkMatches = versionMatches && digest != null
+                            && apk.length() == expectedBytes
+                            && expectedHash.equals(toHex(digest));
                     if (versionMatches && apkReadable) {
-                        payloadMatches = PAYLOAD_SHA256.equals(payloadHash(apk));
+                        payloadMatches = expectedPayload.equals(payloadHash(apk));
                     }
                 }
             }
@@ -110,6 +120,11 @@ final class HeatLiveGate {
                 singleApk, apkReadable, apkMatches, payloadMatches,
                 vendorServiceMatches, ownerUser, originalUid,
                 installedVersion, installedVersionCode);
+    }
+
+    static boolean approvedVersion(String name, long code) {
+        return (VERSION_594.equals(name) && code == 594)
+                || (VERSION_595.equals(name) && code == 595);
     }
 
     static byte[] hashFile(File file) {

@@ -2,6 +2,7 @@ package com.vseeheat.collector;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
@@ -40,7 +41,8 @@ final class PrivateProfileStore {
         int uid = profile.getInt("originalUid");
         if (profile.getInt("format") != 1
                 || !"com.google.heatlive".equals(profile.getString("originalPackage"))
-                || !"5.9.4".equals(profile.getString("originalVersion"))
+                || !currentOriginalVersion(context).equals(
+                        profile.getString("originalVersion"))
                 || uid < 10_000 || uid >= 100_000
                 || !profile.getString("androidId").matches("[0-9a-f]{16}")
                 || !profile.getString("randomSn").matches("[!-~]{40}")) {
@@ -64,7 +66,7 @@ final class PrivateProfileStore {
         JSONObject full = new JSONObject();
         full.put("format", 2);
         full.put("originalPackage", "com.google.heatlive");
-        full.put("originalVersion", "5.9.4");
+        full.put("originalVersion", partial.getString("originalVersion"));
         full.put("originalUid", expectedUid);
         full.put("firmwareFingerprint", android.os.Build.FINGERPRINT);
         full.put("ownerProfile", owner);
@@ -91,7 +93,8 @@ final class PrivateProfileStore {
         if (full == null) return null;
         if (full.getInt("format") != 2
                 || !"com.google.heatlive".equals(full.getString("originalPackage"))
-                || !"5.9.4".equals(full.getString("originalVersion"))
+                || !currentOriginalVersion(context).equals(
+                        full.getString("originalVersion"))
                 || full.getInt("originalUid") != expectedUid
                 || !android.os.Build.FINGERPRINT.equals(
                         full.getString("firmwareFingerprint"))) {
@@ -101,6 +104,8 @@ final class PrivateProfileStore {
         DeviceProfileReader.validate(owner);
         JSONObject partial = loadPartial(context);
         if (partial == null || partial.getInt("originalUid") != expectedUid
+                || !full.getString("originalVersion").equals(
+                        partial.getString("originalVersion"))
                 || !owner.getString("androidId").equals(partial.getString("androidId"))
                 || !owner.getString("randomSn").equals(partial.getString("randomSn"))) {
             throw new IllegalStateException();
@@ -118,7 +123,7 @@ final class PrivateProfileStore {
         JSONObject profile = new JSONObject();
         profile.put("format", 1);
         profile.put("originalPackage", "com.google.heatlive");
-        profile.put("originalVersion", "5.9.4");
+        profile.put("originalVersion", currentOriginalVersion(context));
         profile.put("originalUid", originalUid);
         profile.put("androidId", androidId);
         profile.put("randomSn", randomSn);
@@ -129,6 +134,14 @@ final class PrivateProfileStore {
                 .remove(FULL_FIELD).commit()) {
             throw new IllegalStateException();
         }
+    }
+
+    private static String currentOriginalVersion(Context context) throws Exception {
+        PackageInfo info = context.getPackageManager().getPackageInfo(
+                "com.google.heatlive", 0);
+        if (!HeatLiveGate.approvedVersion(info.versionName,
+                info.getLongVersionCode())) throw new IllegalStateException();
+        return info.versionName;
     }
 
     private static void seal(Context context, String field, JSONObject profile) throws Exception {

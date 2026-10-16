@@ -14,8 +14,8 @@ android {
         applicationId 'com.vseeheat.collector'
         minSdk 28
         targetSdk 34
-        versionCode 20
-        versionName '0.7.13'
+        versionCode 21
+        versionName '0.7.14'
     }
 
     buildTypes {
