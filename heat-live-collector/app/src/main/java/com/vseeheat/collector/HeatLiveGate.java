@@ -67,6 +67,7 @@ final class HeatLiveGate {
         long installedVersionCode = -1;
         int originalUid = -1;
         boolean ownerUser = Process.myUid() >= 10_000 && Process.myUid() < 100_000;
+        HeatAppSpec.Spec remoteSpec = null;
 
         try {
             PackageManager manager = context.getPackageManager();
@@ -75,7 +76,10 @@ final class HeatLiveGate {
             originalFound = true;
             installedVersion = safeBuildText(info.versionName);
             installedVersionCode = info.getLongVersionCode();
-            versionMatches = approvedVersion(info.versionName, info.getLongVersionCode());
+            HeatAppSpec.Spec candidate = CompatibilityUpdates.resolve(context,
+                    PACKAGE, info.versionName, info.getLongVersionCode());
+            versionMatches = approvedVersion(info.versionName,
+                    info.getLongVersionCode()) || candidate != null;
             ApplicationInfo app = info.applicationInfo;
             if (app != null) originalUid = app.uid;
             ownerUser = ownerUser && originalUid >= 10_000 && originalUid < 100_000;
@@ -97,15 +101,25 @@ final class HeatLiveGate {
                     byte[] digest = hashFile(apk);
                     apkReadable = digest != null;
                     boolean is595 = VERSION_595.equals(info.versionName);
-                    long expectedBytes = is595 ? APK_BYTES_595 : APK_BYTES_594;
-                    String expectedHash = is595 ? APK_SHA256_595 : APK_SHA256_594;
-                    String expectedPayload = is595
-                            ? PAYLOAD_SHA256_595 : PAYLOAD_SHA256_594;
-                    apkMatches = versionMatches && digest != null
-                            && apk.length() == expectedBytes
-                            && expectedHash.equals(toHex(digest));
+                    boolean builtIn = approvedVersion(info.versionName,
+                            info.getLongVersionCode());
+                    String actual = digest == null ? "" : toHex(digest);
+                    boolean builtInExact = builtIn && digest != null
+                            && apk.length() == (is595 ? APK_BYTES_595 : APK_BYTES_594)
+                            && (is595 ? APK_SHA256_595 : APK_SHA256_594).equals(actual);
+                    boolean remoteExact = candidate != null && digest != null
+                            && apk.length() == candidate.originalBytes
+                            && candidate.originalSha256.equals(actual);
+                    apkMatches = builtInExact || remoteExact;
                     if (versionMatches && apkReadable) {
-                        payloadMatches = expectedPayload.equals(payloadHash(apk));
+                        String payload = payloadHash(apk);
+                        boolean builtInPayload = builtIn && (is595
+                                ? PAYLOAD_SHA256_595 : PAYLOAD_SHA256_594).equals(payload);
+                        boolean remotePayload = candidate != null
+                                && candidate.payloadSha256.equals(payload);
+                        payloadMatches = builtInPayload || remotePayload;
+                        if (!builtInExact && !builtInPayload
+                                && (remoteExact || remotePayload)) remoteSpec = candidate;
                     }
                 }
             }
@@ -119,12 +133,23 @@ final class HeatLiveGate {
                 originalFound, versionMatches, signerMatches,
                 singleApk, apkReadable, apkMatches, payloadMatches,
                 vendorServiceMatches, ownerUser, originalUid,
-                installedVersion, installedVersionCode);
+                installedVersion, installedVersionCode, remoteSpec);
     }
 
     static boolean approvedVersion(String name, long code) {
         return (VERSION_594.equals(name) && code == 594)
                 || (VERSION_595.equals(name) && code == 595);
+    }
+
+    static boolean approvedVersion(Context context, String name, long code) {
+        return approvedVersion(name, code)
+                || CompatibilityUpdates.resolve(context, PACKAGE, name, code) != null;
+    }
+
+    static String builtInOriginalHash(String name, long code) {
+        if (VERSION_594.equals(name) && code == 594) return APK_SHA256_594;
+        if (VERSION_595.equals(name) && code == 595) return APK_SHA256_595;
+        return null;
     }
 
     static byte[] hashFile(File file) {
@@ -243,6 +268,7 @@ final class HeatLiveGate {
         final int originalUid;
         final String installedVersion;
         final long installedVersionCode;
+        final HeatAppSpec.Spec remoteSpec;
 
         Result(boolean deviceMatches, boolean firmwareMatches,
                String observedManufacturer, String observedModel,
@@ -250,7 +276,8 @@ final class HeatLiveGate {
                boolean signerMatches, boolean singleApk, boolean apkReadable,
                boolean apkMatches, boolean payloadMatches,
                boolean vendorServiceMatches, boolean ownerUser, int originalUid,
-               String installedVersion, long installedVersionCode) {
+               String installedVersion, long installedVersionCode,
+               HeatAppSpec.Spec remoteSpec) {
             this.deviceMatches = deviceMatches;
             this.firmwareMatches = firmwareMatches;
             this.observedManufacturer = observedManufacturer;
@@ -267,6 +294,7 @@ final class HeatLiveGate {
             this.originalUid = originalUid;
             this.installedVersion = installedVersion;
             this.installedVersionCode = installedVersionCode;
+            this.remoteSpec = remoteSpec;
         }
 
         boolean supported() {

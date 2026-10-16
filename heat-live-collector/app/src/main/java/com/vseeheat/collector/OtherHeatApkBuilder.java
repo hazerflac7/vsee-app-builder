@@ -44,7 +44,7 @@ final class OtherHeatApkBuilder {
         File signed = File.createTempFile("heat-extra-signed-", ".apk",
                 context.getCacheDir());
         try {
-            try (InputStream input = context.getAssets().open(spec.templateAsset);
+            try (InputStream input = CompatibilityUpdates.openTemplate(context, spec);
                  OutputStream output = new FileOutputStream(template)) {
                 HeatLiveApkBuilder.copy(input, output, MAX_FILE);
             }
@@ -75,6 +75,10 @@ final class OtherHeatApkBuilder {
             }
             if (!OtherHeatGate.inspectOne(context, spec).supported()) {
                 throw new HeatLiveApkBuilder.BuildFailure("ORIGINAL_CHANGED");
+            }
+            if ("com.google.heatlive".equals(spec.originalPackage)
+                    && !HeatLiveGate.inspect(context).supported()) {
+                throw new HeatLiveApkBuilder.BuildFailure("CHECK_FAILED");
             }
             return HeatLiveApkBuilder.exportDownloads(context, signed,
                     spec.outputName, relativePath);

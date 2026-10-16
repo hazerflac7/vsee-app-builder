@@ -1,0 +1,22 @@
+{
+  "format": 1,
+  "revision": 1,
+  "entries": [
+    {
+      "originalPackage": "com.google.heatlive",
+      "versionName": "5.9.5",
+      "versionCode": 595,
+      "originalBytes": 24054804,
+      "originalSha256": "f5f4c4147f54a4720d7ed0cc6b30d7657d0e603a7098422a8aa676e399b8d37b",
+      "payloadSha256": "bc42e09a79fcff8b45515eddccb2bf43c7c533df8d19a47303187abe9fbf05eb",
+      "templateSha256": "35be87a84f89322b2097bbbf97060e814d8363be5b2ec795acd9e5d121f5aeb1",
+      "templateUrl": "https://raw.githubusercontent.com/torrent329/vsee-app-builder/main/heat-live-collector/app/src/main/assets/heat-live-595-template.apk",
+      "templateEntries": 1801,
+      "minSdk": 26,
+      "lib32Sha256": "103d3ed4b0a219520c3911c4c46f2ff2fce23200067b15687678e42c2b5c46d5",
+      "lib64Sha256": "003e750fd452c52b1ee524a98b794637f9cc7f481a2da6c527e0324bc3415ad6",
+      "pin32Offset": 731414,
+      "pin64Offset": 1006780
+    }
+  ]
+}

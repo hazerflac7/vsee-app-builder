@@ -407,6 +407,7 @@ public final class MainActivity extends Activity {
         }
         worker.execute(new Runnable() {
             @Override public void run() {
+                CompatibilityUpdates.refreshAndPrepare(getApplicationContext());
                 final HeatLiveGate.Result result = HeatLiveGate.inspect(getApplicationContext());
                 final OtherHeatGate.Status[] others = OtherHeatGate.inspectAll(
                         getApplicationContext());
@@ -448,8 +449,8 @@ public final class MainActivity extends Activity {
                             heroTitle.setText("Heat Live setup needs attention");
                             heroBody.setText(result.trustedUpdateDetected()
                                     ? "The original live TV app has changed to version "
-                                            + result.installedVersion + ". This builder needs "
-                                            + "an update before it can make a new app."
+                                            + result.installedVersion + ". Compatible instructions "
+                                            + "are not available yet. Check again later."
                                     : "The original Heat Live app is required to read this "
                                             + "V6's setup, even if you only want other apps. "
                                             + "Review its tile, then try again.");

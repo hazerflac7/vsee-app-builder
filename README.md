@@ -6,7 +6,9 @@ The screen has two actions: **Check compatibility** and **Make APKs**. The build
 
 ## Current status
 
-Version **0.7.13** (`versionCode` 20) adds selectable app builds. Local build and package checks passed. On 2026-10-16, it was installed on a V6 Plus and **Check compatibility** matched all six installed original apps. Selected-app export and Shield playback have not yet been retested with 0.7.13. See [what changed in 0.7.13](docs/RELEASE-0.7.13.md).
+Version **0.7.15** (`versionCode` 22) adds original Heat Live 5.9.5 support and a signed compatibility catalog. When you select **Check compatibility**, the builder can fetch reviewed instructions for later original-app updates without requiring a new builder install. It keeps the built-in supported versions available offline. New app code still needs a reviewed template; an unrecognized update stops safely. See [what changed in 0.7.15](docs/RELEASE-0.7.15.md).
+
+On 2026-10-16, the builder matched all six installed originals on a V6 Plus with Heat Live 5.9.5. Selecting Heat Live alone saved one APK to Downloads. That APK passed signature checks, installed, and opened on the source Plus. At the owner's request, this update was not tested for playback on a separate device.
 
 The last owner-tested version is **0.7.12-design-preview** (`versionCode` 19). On one factory-reset V6 and a 2017 Shield, the owner reported that all six APKs were exported and worked. Its SHA-256 is `11a2063ebc2ae0cd0f3b64aa09ece3d532e24123cdd2e2f600761a0e71ae8eba`.
 
@@ -24,7 +26,7 @@ This tool is for authorized testing. Using modified apps may affect service or a
 
 ## Source and builds
 
-`heat-live-collector/` holds the current builder source and six neutral app templates. `pc-only-helper/` holds the relay code that is packaged inside the builder. `tools/build-integrated-builder.py` assembles, merges, aligns, signs, and checks the installer. See [building from source](docs/BUILDING.md). A plain Gradle build omits the relay and is not the complete installer.
+`heat-live-collector/` holds the current builder source and neutral app templates. `compatibility/` holds the public signed update catalog. `pc-only-helper/` holds the relay code that is packaged inside the builder. `tools/build-integrated-builder.py` assembles, merges, aligns, signs, and checks the installer. See [building from source](docs/BUILDING.md). A plain Gradle build omits the relay and is not the complete installer.
 
 This repository starts with a fresh history of the current version. It does not include owner profiles, generated owner APKs, private signing keys, device logs, or older prototypes.
 

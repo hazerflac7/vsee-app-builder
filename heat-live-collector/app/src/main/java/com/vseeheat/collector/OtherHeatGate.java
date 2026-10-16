@@ -56,8 +56,11 @@ final class OtherHeatGate {
                     spec.originalPackage, PackageManager.GET_SIGNING_CERTIFICATES);
             result.found = true;
             result.version = info.versionName == null ? "(unavailable)" : info.versionName;
-            result.versionMatches = spec.versionName.equals(info.versionName)
+            HeatAppSpec.Spec updated = CompatibilityUpdates.resolve(context,
+                    spec.originalPackage, info.versionName, info.getLongVersionCode());
+            boolean baseVersion = spec.versionName.equals(info.versionName)
                     && spec.versionCode == info.getLongVersionCode();
+            result.versionMatches = baseVersion || updated != null;
             ApplicationInfo app = info.applicationInfo;
             result.ownerUser = app != null && app.uid >= 10_000 && app.uid < 100_000;
             result.originalUid = result.ownerUser ? app.uid : -1;
@@ -77,11 +80,29 @@ final class OtherHeatGate {
                         && apk.length() <= HeatLiveGate.MAX_APK_BYTES) {
                     byte[] hash = HeatLiveGate.hashFile(apk);
                     result.readable = hash != null;
-                    result.exact = hash != null && apk.length() == spec.originalBytes
-                            && spec.originalSha256.equals(HeatLiveGate.toHex(hash));
-                    if (result.readable && !result.exact) {
-                        result.payloadMatches = spec.payloadSha256.equals(
-                                HeatLiveGate.payloadHash(apk));
+                    if (result.readable) {
+                        String actualHash = HeatLiveGate.toHex(hash);
+                        boolean baseExact = baseVersion
+                                && apk.length() == spec.originalBytes
+                                && spec.originalSha256.equals(actualHash);
+                        boolean remoteExact = updated != null
+                                && apk.length() == updated.originalBytes
+                                && updated.originalSha256.equals(actualHash);
+                        String payload = baseExact || remoteExact ? null
+                                : HeatLiveGate.payloadHash(apk);
+                        boolean basePayload = baseVersion
+                                && spec.payloadSha256.equals(payload);
+                        boolean remotePayload = updated != null
+                                && updated.payloadSha256.equals(payload);
+                        if (!baseExact && !basePayload
+                                && (remoteExact || remotePayload)) {
+                            result.spec = updated;
+                            result.exact = remoteExact;
+                            result.payloadMatches = remotePayload;
+                        } else {
+                            result.exact = baseExact;
+                            result.payloadMatches = basePayload;
+                        }
                     }
                 }
             }
@@ -92,7 +113,7 @@ final class OtherHeatGate {
     }
 
     static final class Status {
-        final HeatAppSpec.Spec spec;
+        HeatAppSpec.Spec spec;
         String version = "(unavailable)";
         boolean found;
         boolean versionMatches;

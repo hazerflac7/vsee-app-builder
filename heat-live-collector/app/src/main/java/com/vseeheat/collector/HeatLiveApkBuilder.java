@@ -61,6 +61,19 @@ final class HeatLiveApkBuilder {
     static Uri build(Context context, String relativePath) throws Exception {
         HeatLiveGate.Result gate = HeatLiveGate.inspect(context);
         if (!gate.supported()) throw new BuildFailure("CHECK_FAILED");
+        if (gate.remoteSpec != null) {
+            HeatAppSpec.Spec update = gate.remoteSpec;
+            if (update == null) throw new BuildFailure("CHECK_FAILED");
+            JSONObject ownerProfile = PrivateProfileStore.loadFull(context,
+                    gate.originalUid);
+            OwnerSigningKeys.Material signing = OwnerSigningKeys.load(context);
+            if (ownerProfile == null || signing == null) {
+                throw new BuildFailure("FULL_PROFILE_MISSING");
+            }
+            verifyCurrentProfile(context, gate.originalUid, ownerProfile);
+            return OtherHeatApkBuilder.build(context, update, ownerProfile,
+                    signing, relativePath);
+        }
         boolean is595 = "5.9.5".equals(gate.installedVersion);
         String templateAsset = is595 ? TEMPLATE_595 : TEMPLATE_594;
         String templateHash = is595 ? TEMPLATE_SHA256_595 : TEMPLATE_SHA256_594;

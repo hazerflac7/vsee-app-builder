@@ -68,7 +68,8 @@ final class SixApkBuilder {
             }
             for (int index = 0; index < HeatAppSpec.OTHER.length; index++) {
                 if (!selected[index + 1]) continue;
-                HeatAppSpec.Spec spec = HeatAppSpec.OTHER[index];
+                HeatAppSpec.Spec spec = OtherHeatGate.inspectOne(context,
+                        HeatAppSpec.OTHER[index]).spec;
                 int ordinal = exported.size() + 1;
                 progress.update(exported.size(), index + 1,
                         "Making " + ordinal + " of " + total + ": " + spec.label);

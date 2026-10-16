@@ -139,7 +139,7 @@ final class PrivateProfileStore {
     private static String currentOriginalVersion(Context context) throws Exception {
         PackageInfo info = context.getPackageManager().getPackageInfo(
                 "com.google.heatlive", 0);
-        if (!HeatLiveGate.approvedVersion(info.versionName,
+        if (!HeatLiveGate.approvedVersion(context, info.versionName,
                 info.getLongVersionCode())) throw new IllegalStateException();
         return info.versionName;
     }
