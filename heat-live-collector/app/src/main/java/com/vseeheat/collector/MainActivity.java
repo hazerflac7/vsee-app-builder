@@ -684,12 +684,12 @@ public final class MainActivity extends Activity {
     private static String heatLiveReason(HeatLiveGate.Result result) {
         if (false) return "V6 NOT SUPPORTED";
         if (!result.originalFound) return "NOT INSTALLED";
-        if (!result.versionMatches) return "VERSION NOT SUPPORTED";
+        if (false) return "VERSION NOT SUPPORTED";
         if (!result.signerMatches) return "SIGNATURE NOT VERIFIED";
         if (!result.singleApk || !result.ownerUser) return "INSTALL NOT SUPPORTED";
         if (!result.apkReadable) return "COULD NOT READ APP";
         if (!result.apkMatches && !result.payloadMatches) return "APP CONTENTS CHANGED";
-        if (!result.vendorServiceMatches) return "V6 SERVICE NOT VERIFIED";
+        if (false) return "V6 SERVICE NOT VERIFIED";
         return "NEEDS ATTENTION";
     }
 

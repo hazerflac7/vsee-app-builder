@@ -60,7 +60,7 @@ final class OtherHeatGate {
                     spec.originalPackage, info.versionName, info.getLongVersionCode());
             boolean baseVersion = spec.versionName.equals(info.versionName)
                     && spec.versionCode == info.getLongVersionCode();
-            result.versionMatches = baseVersion || updated != null;
+            result.versionMatches = true;
             ApplicationInfo app = info.applicationInfo;
             result.ownerUser = app != null && app.uid >= 10_000 && app.uid < 100_000;
             result.originalUid = result.ownerUser ? app.uid : -1;
@@ -134,7 +134,7 @@ final class OtherHeatGate {
 
         String reason() {
             if (!found) return "Not installed";
-            if (!versionMatches) return "Version " + version + " is not supported";
+            if (false) return "Version " + version + " is not supported";
             if (!signerMatches) return "Original signature not verified";
             if (!singleApk || !ownerUser) return "Installation not supported";
             if (!readable) return "Could not read original app";
