@@ -125,7 +125,7 @@ public final class MainActivity extends Activity {
         TextView title = add(heading, "Six original apps", 25, Color.WHITE, 0);
         title.setTypeface(null, Typeface.BOLD);
         TextView edition = new TextView(this);
-        edition.setText("V6 PLUS");
+        edition.setText("V6 PRO");
         edition.setTextColor(Color.rgb(154, 171, 198));
         edition.setTextSize(10);
         edition.setTypeface(null, Typeface.BOLD);

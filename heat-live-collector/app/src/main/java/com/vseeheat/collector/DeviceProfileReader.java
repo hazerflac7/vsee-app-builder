@@ -40,7 +40,7 @@ final class DeviceProfileReader {
                 || !value.getString("androidId").matches("[0-9a-f]{16}")
                 || !value.getString("brand").matches("[!-~]{1,64}")
                 || !"chke".equals(value.getString("manufacturer"))
-                || !"V6-Plus".equals(value.getString("model"))
+                || !"V6-Pro".equals(value.getString("model"))
                 || !value.getString("release").matches("[0-9.]{1,16}")
                 || !value.getString("firmwareVersion").matches("[!-~]{0,128}")
                 || !value.getString("clapVersion").matches("[!-~]{0,128}")

@@ -53,7 +53,7 @@ final class HeatLiveGate {
         // Android app context sees these vendor Build fields on the tested V6.
         // The generic shell ro.product values are different on this firmware.
         boolean deviceMatches = "chke".equals(Build.MANUFACTURER)
-                && "V6-Plus".equals(Build.MODEL);
+                && "V6-Pro".equals(Build.MODEL);
         boolean firmwareMatches = FIRMWARE_FINGERPRINT.equals(Build.FINGERPRINT);
         boolean vendorServiceMatches = VendorServiceGate.isTrusted(context);
         boolean originalFound = false;
