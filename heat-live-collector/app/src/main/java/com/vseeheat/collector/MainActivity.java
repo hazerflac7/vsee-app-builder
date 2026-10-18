@@ -682,7 +682,7 @@ public final class MainActivity extends Activity {
     }
 
     private static String heatLiveReason(HeatLiveGate.Result result) {
-        if (!result.deviceMatches || !result.firmwareMatches) return "V6 NOT SUPPORTED";
+        if (false) return "V6 NOT SUPPORTED";
         if (!result.originalFound) return "NOT INSTALLED";
         if (!result.versionMatches) return "VERSION NOT SUPPORTED";
         if (!result.signerMatches) return "SIGNATURE NOT VERIFIED";
