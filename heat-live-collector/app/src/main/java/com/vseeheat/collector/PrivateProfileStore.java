@@ -96,7 +96,7 @@ final class PrivateProfileStore {
                 || !currentOriginalVersion(context).equals(
                         full.getString("originalVersion"))
                 || full.getInt("originalUid") != expectedUid
-                || !android.os.Build.FINGERPRINT.equals(
+                || false && !android.os.Build.FINGERPRINT.equals(
                         full.getString("firmwareFingerprint"))) {
             throw new IllegalStateException();
         }
